@@ -18,6 +18,8 @@ class Cell:
         else:
             self.__value = value
             self.TryoutValue = value
+        if self.__value != 0:
+            self.__allowed_values = {self.__value}
 
     def get_allowed_values(self):
         return self.__allowed_values.copy()
@@ -41,11 +43,11 @@ class Cell:
             return False
 
     def __repr__(self):
-        return str(self.__value) + ':' + str(self.TryoutValue)
+        return str(self.__value)
 
 
 class Sudoku:
-    def __init__(self):
+    def __init__(self, id=None):
         self.__cells = {}
         for i in range(1, 10):
             for j in range(1, 10):
@@ -54,6 +56,7 @@ class Sudoku:
         self.__columns = tuple(Sudoku.Column(self, col_num) for col_num in range(1, 10))
         self.__squares = {(r, c): Sudoku.Square(self, r, c) for r, c in itertools.product(range(1, 4), range(1, 4))}
         self.__cell_sets = lambda: itertools.chain(self.__rows, self.__columns, self.__squares.values())
+        self.__id = id
 
     def process_allowed_values(self):
         foundNewValue = True
@@ -63,6 +66,8 @@ class Sudoku:
                 foundNewValue |= cell.forbid_values(self.get_row(row).get_non_zero_values_set())
                 foundNewValue |= cell.forbid_values(self.get_column(column).get_non_zero_values_set())
                 foundNewValue |= cell.forbid_values(self.get_square_of_a_cell(row, column).get_non_zero_values_set())
+        if len(self.get_udefined_cells()) == 0 and self.is_solved() == False:
+            raise Exception('!!!!')
 
     def get_cell(self, row, column):
         return self.__cells[row, column]
@@ -99,8 +104,7 @@ class Sudoku:
             undefinedIndexed[i].TryoutValue = values[i]
 
     def check_if_tryout_solves_it(self):
-        ok = False not in (x.is_tryout_valid() for x in self.__cell_sets())
-        return ok
+        return False not in (x.is_tryout_valid() for x in self.__cell_sets())
 
     def set_values_from_tryouts(self):
         for cell in self.__cells.values():
@@ -113,6 +117,13 @@ class Sudoku:
             forbidden_values = set(range(1, 10)) - cell.get_allowed_values()
             cpy.__cells[i, j].forbid_values(forbidden_values)
         return cpy
+
+    def is_solved(self):
+        sets = [cell_set.is_valid() for cell_set in self.__cell_sets()]
+        return False not in sets
+
+    def get_id(self):
+        return self.__id
 
     def __repr__(self):
         s = ''
@@ -166,7 +177,7 @@ class Sudoku:
             return not (cond1 or cond2)
 
         def __repr__(self):
-            return str([str(c.get_value()) for c in self._cells])
+            return str([c.get_value() for c in self._cells])
 
     class Row(CellSet):
         def __init__(self, sudoku, row_number):

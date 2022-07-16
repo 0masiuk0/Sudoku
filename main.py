@@ -1,5 +1,7 @@
 import sudoku
-from itertools import product
+import time
+
+debugTimer = time.perf_counter()
 
 def try_variants(sdk):
     sdk: sudoku.Sudoku
@@ -23,8 +25,6 @@ def try_variants(sdk):
         raise sudoku.Sudoku.NoValidSolutions('')
 
 
-
-
 with open('p096_sudoku.txt', 'r') as src:
     lines = [line.strip() for line in src.readlines()]
 
@@ -35,7 +35,7 @@ solved_sudokus = []
 while line_number < len(lines):
     if lines[line_number][0] == 'G':
         line_number += 1
-        sdk = sudoku.Sudoku()
+        sdk = sudoku.Sudoku(line_number)
         for row in range(9):
             l = list(lines[line_number + row])
             sdk2 = [int(x) for x in l]
@@ -54,10 +54,15 @@ for sdk in sudoku_list:
 
 sigantures = [sdk.get_signature() for sdk in solved_sudokus]
 print(sum(sigantures))
+
+debugTimer = time.perf_counter() - debugTimer
+print(debugTimer, ' sec')
 with open('output.txt', 'w') as ou:
     for i in range(0, 50):
+        ou.write(str(sudoku_list[i].get_id()) + '\n')
         ou.write(str(sudoku_list[i]))
         ou.write('\n')
+        ou.write(str(solved_sudokus[i].is_solved()) + '\n')
         ou.write(str(solved_sudokus[i]))
         ou.write('\n\n\n\n')
 print('Check output.txt for solutions.')
