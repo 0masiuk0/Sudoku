@@ -10,7 +10,10 @@ def try_variants(sdk):
 
     undefined_cells = sdk.get_udefined_cells()
     if len(undefined_cells) == 0:
-        return sdk
+        if sdk.is_solved():
+            return sdk
+        else:
+            raise sudoku.Sudoku.NoValidSolutions('')
     variants = {(r, c): cell.get_allowed_values() for (r, c), cell in undefined_cells.items()}
 
     minimum = 100  # search of an undefined cell wih minimum choice

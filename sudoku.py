@@ -67,8 +67,6 @@ class Sudoku:
                 found_new_value_for_this_cell |= cell.forbid_values(self.get_column(column).get_non_zero_values_set())
                 found_new_value_for_this_cell |= cell.forbid_values(self.get_square_of_a_cell(row, column).get_non_zero_values_set())
                 foundNewValue |= found_new_value_for_this_cell
-        if len(self.get_udefined_cells()) == 0 and not self.is_solved():
-            raise Sudoku.NoValidSolutions('')
 
     def get_cell(self, row, column):
         return self.__cells[row, column]
