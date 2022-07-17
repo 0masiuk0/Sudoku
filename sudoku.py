@@ -17,7 +17,6 @@ class Cell:
             raise ValueError("Value no allowed")
         else:
             self.__value = value
-            self.TryoutValue = value
         if self.__value != 0:
             self.__allowed_values = {self.__value}
 
@@ -63,11 +62,13 @@ class Sudoku:
         while foundNewValue:
             foundNewValue = False
             for (row, column), cell in self.__cells.items():
-                foundNewValue |= cell.forbid_values(self.get_row(row).get_non_zero_values_set())
-                foundNewValue |= cell.forbid_values(self.get_column(column).get_non_zero_values_set())
-                foundNewValue |= cell.forbid_values(self.get_square_of_a_cell(row, column).get_non_zero_values_set())
-        if len(self.get_udefined_cells()) == 0 and self.is_solved() == False:
-            raise Exception('!!!!')
+                found_new_value_for_this_cell = False # debug row
+                found_new_value_for_this_cell |= cell.forbid_values(self.get_row(row).get_non_zero_values_set())
+                found_new_value_for_this_cell |= cell.forbid_values(self.get_column(column).get_non_zero_values_set())
+                found_new_value_for_this_cell |= cell.forbid_values(self.get_square_of_a_cell(row, column).get_non_zero_values_set())
+                foundNewValue |= found_new_value_for_this_cell
+        if len(self.get_udefined_cells()) == 0 and not self.is_solved():
+            raise Sudoku.NoValidSolutions('')
 
     def get_cell(self, row, column):
         return self.__cells[row, column]
@@ -111,7 +112,7 @@ class Sudoku:
             cell.set_value()
 
     def copy(self):
-        cpy = Sudoku()
+        cpy = Sudoku(self.__id)
         for (i, j), cell in self.__cells.items():
             cpy.set_cell_value(cell.get_value(), i, j)
             forbidden_values = set(range(1, 10)) - cell.get_allowed_values()
